@@ -1,6 +1,7 @@
 package com.m76.javaspringvaadin.views;
 
 import com.m76.javaspringvaadin.data.entity.Contact;
+import com.m76.javaspringvaadin.service.CrmService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -20,8 +21,10 @@ public class ListView extends VerticalLayout {
     Grid<Contact> grid = new Grid<>(Contact.class);
     TextField filteredText = new TextField();
     ContactForm form;
+    private CrmService service;
 
-    public ListView() {
+    public ListView(CrmService service) {
+        this.service = service;
         addClassName("List-view");
         setSizeFull();
 
@@ -32,7 +35,11 @@ public class ListView extends VerticalLayout {
                 getToolbar(),
                 getContent()
         );
+        updateList();
+    }
 
+    private void updateList() {
+        grid.setItems(service.findAllContacts(filteredText.getValue()));
     }
 
     private Component getContent() {
@@ -45,7 +52,7 @@ public class ListView extends VerticalLayout {
     }
 
     private void configureForm() {
-        form = new ContactForm(Collections.emptyList(), Collections.emptyList());
+        form = new ContactForm(service.finAllCompanies(), service.findAllStatues());
         form.setWidth("25em");
     }
 
@@ -53,6 +60,8 @@ public class ListView extends VerticalLayout {
         filteredText.setPlaceholder("Filtered by name ...");
         filteredText.setClearButtonVisible(true);
         filteredText.setValueChangeMode(ValueChangeMode.LAZY);
+        filteredText.addValueChangeListener(e -> updateList());
+
         Button addContactButton = new Button("Add contact");
 
         HorizontalLayout toolbar = new HorizontalLayout(filteredText, addContactButton);
