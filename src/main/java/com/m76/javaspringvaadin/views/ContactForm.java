@@ -1,6 +1,7 @@
 package com.m76.javaspringvaadin.views;
 
 import com.m76.javaspringvaadin.data.entity.Company;
+import com.m76.javaspringvaadin.data.entity.Contact;
 import com.m76.javaspringvaadin.data.entity.Status;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
@@ -11,10 +12,15 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.Binder;
 
 import java.util.List;
 
 public class ContactForm extends FormLayout {
+
+    Binder<Contact> binder = new BeanValidationBinder<>(Contact.class);
+
     TextField firstName = new TextField("First Name");
     TextField lastName = new TextField("Last Name");
     EmailField email = new EmailField("E-Mail");
@@ -24,9 +30,12 @@ public class ContactForm extends FormLayout {
     Button save = new Button("Save");
     Button delete = new Button("Delete");
     Button cancel = new Button("Cancel");
+    private Contact contact;
+
 
     public ContactForm(List<Company> companies, List<Status> statuses) {
         addClassName("contact-form");
+        binder.bindInstanceFields(this);
         company.setItems(companies);
         company.setItemLabelGenerator(Company::getName);
         status.setItems(statuses);
@@ -40,6 +49,11 @@ public class ContactForm extends FormLayout {
                 status,
                 createButtonLayout()
         );
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
+        binder.readBean(contact);
     }
 
     private Component createButtonLayout() {
